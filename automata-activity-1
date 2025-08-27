@@ -1,0 +1,98 @@
+from typing import Dict, Tuple, Set, List
+
+class DFA:
+    def __init__(self, start: str, accepts: Set[str],
+                 delta: Dict[Tuple[str, str], str]):
+        self.start = start
+        self.accepts_set = accepts
+        self.delta = delta
+
+    def run(self, s: str) -> List[str]:
+        """Return the list of states visited (including start and final)."""
+        q = self.start
+        path = [q]
+        for ch in s:
+            try:
+                q = self.delta[(q, ch)]
+            except KeyError as e:
+                raise KeyError(f"No transition defined for state={q!r}, symbol={ch!r}") from e
+            path.append(q)
+        return path
+
+    def accepts(self, s: str) -> bool:
+        return self.run(s)[-1] in self.accepts_set
+
+
+# ---------- DFA #1: binary strings ending with '11' ----------
+dfa1 = DFA(
+    start="S",
+    accepts={"B"},
+    delta={
+        ("S", "0"): "S", ("S", "1"): "A",
+        ("A", "0"): "S", ("A", "1"): "B",
+        ("B", "0"): "S", ("B", "1"): "B",   # stay in B on more 1's
+    },
+)
+
+# ---------- DFA #2: alphabet {a,b}, accept state q3 ----------
+# Accepts strings whose last two symbols are the same (end with 'aa' or 'bb').
+dfa2 = DFA(
+    start="q0",
+    accepts={"q3"},
+    delta={
+        ("q0", "a"): "q1", ("q0", "b"): "q2",
+        ("q1", "a"): "q3", ("q1", "b"): "q0",
+        ("q2", "a"): "q0", ("q2", "b"): "q3",
+        ("q3", "a"): "q2", ("q3", "b"): "q1",
+    },
+)
+
+
+def demo() -> None:
+    tests1 = ["011","1111","10111","0011","110011","", "1","1010","1110","010"]
+    tests2 = ["aa","bb","abaa","babb","aabb","bbaa","ababaa","bbabbaabb","", "a","b","ab","ba","aba","aab","abba"]
+
+    print("\nDFA #1 (end with 11)\n---------------------")
+    for t in tests1:
+        shown = t if t != "" else "ε"
+        path = dfa1.run(t)
+        print(f"{shown:10} -> {str(path[-1] in dfa1.accepts_set):5}  path={ ' → '.join(path) }")
+
+    print("\nDFA #2 (end with aa or bb)\n--------------------------")
+    for t in tests2:
+        shown = t if t != "" else "ε"
+        path = dfa2.run(t)
+        print(f"{shown:10} -> {str(path[-1] in dfa2.accepts_set):5}  path={ ' → '.join(path) }")
+
+
+def repl() -> None:
+    """Interactive prompt to test your own strings."""
+    print("DFA Simulator (type '1' or '2' to pick DFA; 'q' to quit)")
+    while True:
+        pick = input("\nChoose DFA [1=end with 11, 2=end with aa/bb, q=quit]: ").strip().lower()
+        if pick == "q":
+            break
+        if pick not in {"1","2"}:
+            print("Please enter 1, 2, or q.")
+            continue
+        dfa = dfa1 if pick == "1" else dfa2
+        while True:
+            s = input("Enter string (empty for ε, or '/back' to switch DFA): ").strip()
+            if s == "/back":
+                break
+            if s == "":
+                s_eval = ""
+                shown = "ε"
+            else:
+                s_eval = s
+                shown = s
+            try:
+                path = dfa.run(s_eval)
+                acc = path[-1] in dfa.accepts_set
+                print(f"{shown} -> {acc}  path={ ' → '.join(path) }")
+            except KeyError as e:
+                print(f"Error: {e}")
+
+if __name__ == "__main__":
+    demo()
+    # repl()   # uncomment this line and comment out demo() to try interactive mode

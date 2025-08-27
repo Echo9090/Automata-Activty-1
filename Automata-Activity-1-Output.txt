@@ -1,0 +1,31 @@
+DFA #1 (end with 11)
+---------------------
+011        -> True   path=S → S → A → B
+1111       -> True   path=S → A → B → B → B
+10111      -> True   path=S → A → S → A → B → B
+0011       -> True   path=S → S → S → A → B
+110011     -> True   path=S → A → B → S → S → A → B
+ε          -> False  path=S
+1          -> False  path=S → A
+1010       -> False  path=S → A → S → A → S
+1110       -> False  path=S → A → B → B → S
+010        -> False  path=S → S → A → S
+
+DFA #2 (end with aa or bb)
+--------------------------
+aa         -> True   path=q0 → q1 → q3
+bb         -> True   path=q0 → q2 → q3
+abaa       -> True   path=q0 → q1 → q0 → q1 → q3
+babb       -> True   path=q0 → q2 → q0 → q2 → q3
+aabb       -> False  path=q0 → q1 → q3 → q1 → q0
+bbaa       -> False  path=q0 → q2 → q3 → q2 → q0
+ababaa     -> True   path=q0 → q1 → q0 → q1 → q0 → q1 → q3
+bbabbaabb  -> False  path=q0 → q2 → q3 → q2 → q3 → q1 → q3 → q2 → q3 → q1
+ε          -> False  path=q0
+a          -> False  path=q0 → q1
+b          -> False  path=q0 → q2
+ab         -> False  path=q0 → q1 → q0
+ba         -> False  path=q0 → q2 → q0
+aba        -> False  path=q0 → q1 → q0 → q1
+aab        -> False  path=q0 → q1 → q3 → q1
+abba       -> False  path=q0 → q1 → q0 → q2 → q0
